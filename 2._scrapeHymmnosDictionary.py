@@ -114,7 +114,7 @@ special_words = {
 
 def fetch_and_parse_table(url):
   response = requests.get(url)
-  response.raise_for_status() # Raise an error for bad responses
+  response.raise_for_status()
   
   soup = BeautifulSoup(response.text, 'html.parser')
   tables = soup.find_all('table')
@@ -122,16 +122,16 @@ def fetch_and_parse_table(url):
   if len(tables) < 3:
     raise ValueError("The page does not contain at least three tables.")
   
-  third_table = tables[2] # Get the third table
+  third_table = tables[2]
   rows = third_table.find_all('tr')
   
   headers = [header.get_text(strip=True) for header in rows[0].find_all('th')]
   data = {}
   
-  for row in rows[1:]: # Skip header row
+  for row in rows[1:]:
     values = [cell.get_text(strip=True) for cell in row.find_all('td')]
     entry = dict(zip(headers, values))
-    key = values[0] if values else None # Use the first column as key
+    key = values[0] if values else None
     if key:
       data[key] = entry
   
@@ -146,9 +146,9 @@ if __name__ == "__main__":
     url = base_url.format(page)
     page_data = fetch_and_parse_table(url)
     time.sleep(random.uniform(0.2, 2))
-    hymmnos_dict.update(page_data) # Merge dictionaries
+    hymmnos_dict.update(page_data)
   
-  hymmnos_dict.update(special_words) # Add special words
+  hymmnos_dict.update(special_words)
 
   print(f"Scraped {len(hymmnos_dict)} words.")
 
