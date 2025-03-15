@@ -1,6 +1,6 @@
 # HymmnoAnki
 
-This is a collection of short scripts that can be used to generate Hymmnos Anki decks from the resources provided by [HymmnoServer](hymmnoserver.uguu.ca) ([repo](https://github.com/flan/hymmnoserver)).
+This is a collection of short scripts that can be used to generate Hymmnos Anki decks from the resources provided by [HymmnoServer](https://hymmnoserver.uguu.ca) ([repo](https://github.com/flan/hymmnoserver)).
 
 Hymmnos is a language created for the Ar tonelico series.
 
