@@ -3,3 +3,5 @@
 !requirements.txt
 !.gitignore
 !README.md
+!media/
+!media/**

@@ -4,6 +4,8 @@ This is a collection of short scripts that can be used to generate Hymmnos Anki 
 
 Hymmnos is a language created for the Ar tonelico series.
 
+![Card from the hymmnos_dictionary deck](media/card.png)
+
 ## Usage
 **This project requires Python 3.10+**
 - Navigate to project folder
