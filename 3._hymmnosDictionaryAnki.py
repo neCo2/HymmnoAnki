@@ -1,5 +1,6 @@
 import genanki
 import json
+import os
 
 
 
@@ -159,7 +160,11 @@ for key, values in hymmnos_dict.items():
   if "v." in values["Class"]: 
     values["Class"] = values["Class"].replace("v.","Verb")
 
-  note = genanki.Note(model=hymmnos_model, fields=[key, values["Hymmnos"], values["Meaning"], values["Class"], values["Kana"], values["Dialect"]])
+  note = genanki.Note(
+    model=hymmnos_model, 
+    fields=[key, values["Hymmnos"], values["Meaning"], values["Class"], values["Kana"], values["Dialect"]],
+    tags=[s.strip().replace(' ', '_') for s in values["Class"].split(',')]
+  )
   deck.add_note(note)
 
 
