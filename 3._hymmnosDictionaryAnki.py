@@ -1,12 +1,18 @@
 import genanki
 import json
 import os
+import random
+
+if not input("Do you want to shuffle the cards? [y]/n: ").strip().lower() == "n":
+  flag_shuffle = True
+else:
+  flag_shuffle = False
 
 
+random.seed(0)
 
 with open("hymmnosDictionary.json", "r") as file:
   hymmnos_dict = json.load(file)
-
 
 hymmnos_model = genanki.Model(
   1738209632,
@@ -18,10 +24,11 @@ hymmnos_model = genanki.Model(
     {"name": "Class"},
     {"name": "Kana"},
     {"name": "Dialect"},
+    {"name": "Audio"},
   ],
   templates=[
     {
-      "name": "Card 1",
+      "name": "Recognize",
       "qfmt": """
 <div style='text-align: center;'>
   <div class="hymmnosWord">{{Hymmnos}}</div>
@@ -57,9 +64,52 @@ hymmnos_model = genanki.Model(
     </table>
     <div style='font-size: 1.5em; font-weight: bold;'>{{Meaning}}</div>
   </div>
+  {{Audio}}
 </div>
       """,
     },
+    {
+      "name": "Recall",
+      "qfmt": """
+<div style='text-align: center;'>
+<div style='font-size: 3em; font-weight: bold;'>{{Meaning}}</div>
+  <div style='font-size: 2em;'>
+    <table style="margin:auto;">
+      <tr>
+        <td>Class</td>
+        <td>{{Class}}</td>
+      </tr>
+      <tr>
+        <td>Dialect</td>
+        <td>{{Dialect}}</td>
+      </tr>
+    </table>
+    <div class="hymmnosWord hidden">{{Hymmnos}}</div>
+    <div class="hidden">{{Reading}} {{Kana}}</div>
+  </div>
+</div>
+""",
+      "afmt": """
+<div style='text-align: center;'>
+<div style='font-size: 3em; font-weight: bold;'>{{Meaning}}</div>
+  <div style='font-size: 2em;'>
+    <table style="margin:auto;">
+      <tr>
+        <td>Class</td>
+        <td>{{Class}}</td>
+      </tr>
+      <tr>
+        <td>Dialect</td>
+        <td>{{Dialect}}</td>
+      </tr>
+    </table>
+    <div>{{Reading}} {{Kana}}</div>
+  </div>
+  <div class="hymmnosWord">{{Hymmnos}}</div>
+  {{Audio}}
+</div>
+""",
+    }
   ],
   css="""
 :root {
@@ -68,6 +118,9 @@ hymmnos_model = genanki.Model(
 @font-face {
   font-family: 'hymmnos';
   src: url('_hymmnos.ttf') format("truetype");
+}
+.hidden {
+  opacity: 0;
 }
 .spoiler {
   background: black;
@@ -78,7 +131,7 @@ hymmnos_model = genanki.Model(
 }
 .hymmnosWord {
   position: relative;
-  font-size: 6em;
+  font-size: 7em;
   font-family: hymmnos;
   margin-bottom: .25em;
 }
@@ -120,6 +173,27 @@ td:nth-child(2) {
 """
 )
 
+# shuffle dictionary
+if flag_shuffle:
+  print("Shuffling cards")
+  es = {}
+  non_es = {}
+  for key, value in hymmnos_dict.items():
+    if 'E.S.' in value.get("Class", ""):
+      es[key] = value
+    else:
+      non_es[key] = value
+
+  es = list(es.items())
+  random.shuffle(es)
+  shuffled_es = dict(es)
+
+  non_es = list(non_es.items())
+  random.shuffle(non_es)
+  shuffled_non_es = dict(non_es)
+
+  hymmnos_dict = shuffled_es | shuffled_non_es
+
 deck = genanki.Deck(2059400111, "Hymmnos Dictionary")
 
 for key, values in hymmnos_dict.items():
@@ -145,14 +219,14 @@ for key, values in hymmnos_dict.items():
   if "intj." in values["Class"]: 
     values["Class"] = values["Class"].replace("intj.","Interjection")
 
+  if "pron." in values["Class"]: 
+    values["Class"] = values["Class"].replace("pron.","Pronoun")
+
   if "n." in values["Class"]: 
     values["Class"] = values["Class"].replace("n.","Noun")
 
   if "prep." in values["Class"]: 
     values["Class"] = values["Class"].replace("prep.","Preposition")
-
-  if "pron." in values["Class"]: 
-    values["Class"] = values["Class"].replace("pron.","Pronoun")
 
   if "prt." in values["Class"]: 
     values["Class"] = values["Class"].replace("prt.","Particle")
@@ -160,11 +234,15 @@ for key, values in hymmnos_dict.items():
   if "v." in values["Class"]: 
     values["Class"] = values["Class"].replace("v.","Verb")
 
+  tags = [s.strip().replace(' ', '_') for s in values["Class"].split(',')]
+
+  # for template_index in range(len(hymmnos_model.templates)):
   note = genanki.Note(
     model=hymmnos_model, 
-    fields=[key, values["Hymmnos"], values["Meaning"], values["Class"], values["Kana"], values["Dialect"]],
-    tags=[s.strip().replace(' ', '_') for s in values["Class"].split(',')]
+    fields=[key, values["Hymmnos"], values["Meaning"], values["Class"], values["Kana"], values["Dialect"], ""],
+    tags=tags
   )
+  # note._card_template = template_index
   deck.add_note(note)
 
 
